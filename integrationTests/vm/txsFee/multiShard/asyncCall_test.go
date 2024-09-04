@@ -1,0 +1,195 @@
+package multiShard
+
+import (
+	"encoding/hex"
+	"math/big"
+	"testing"
+
+	"github.com/DharitriOne/drt-chain-go/config"
+	"github.com/DharitriOne/drt-chain-go/integrationTests"
+	"github.com/DharitriOne/drt-chain-go/integrationTests/vm"
+	"github.com/DharitriOne/drt-chain-go/integrationTests/vm/txsFee/utils"
+	"github.com/DharitriOne/drt-chain-go/testscommon"
+	vmcommon "github.com/DharitriOne/drt-chain-vm-common-go"
+	"github.com/stretchr/testify/require"
+)
+
+func TestAsyncCallShouldWork(t *testing.T) {
+	if testing.Short() {
+		t.Skip("this is not a short test")
+	}
+
+	enableEpochs := config.EnableEpochs{
+		DynamicGasCostForDataTrieStorageLoadEnableEpoch: integrationTests.UnreachableEpoch,
+	}
+
+	testContextFirstContract, err := vm.CreatePreparedTxProcessorWithVMsMultiShard(0, enableEpochs)
+	require.Nil(t, err)
+	defer testContextFirstContract.Close()
+
+	testContextSecondContract, err := vm.CreatePreparedTxProcessorWithVMsMultiShard(1, enableEpochs)
+	require.Nil(t, err)
+	defer testContextSecondContract.Close()
+
+	testContextSender, err := vm.CreatePreparedTxProcessorWithVMsMultiShard(2, enableEpochs)
+	require.Nil(t, err)
+	defer testContextSender.Close()
+
+	firstContractOwner := []byte("12345678901234567890123456789010")
+	require.Equal(t, uint32(0), testContextSender.ShardCoordinator.ComputeId(firstContractOwner))
+
+	secondContractOwner := []byte("12345678901234567890123456789011")
+	require.Equal(t, uint32(1), testContextSender.ShardCoordinator.ComputeId(secondContractOwner))
+
+	senderAddr := []byte("12345678901234567890123456789032")
+	require.Equal(t, uint32(2), testContextSender.ShardCoordinator.ComputeId(senderAddr))
+
+	rewaBalance := big.NewInt(1000000000)
+
+	_, _ = vm.CreateAccount(testContextSender.Accounts, senderAddr, 0, rewaBalance)
+	_, _ = vm.CreateAccount(testContextFirstContract.Accounts, firstContractOwner, 0, rewaBalance)
+	_, _ = vm.CreateAccount(testContextSecondContract.Accounts, secondContractOwner, 0, rewaBalance)
+
+	gasPrice := uint64(10)
+	deployGasLimit := uint64(50000)
+	firstAccount, _ := testContextFirstContract.Accounts.LoadAccount(firstContractOwner)
+
+	pathToContract := "../testdata/first/output/first.wasm"
+	firstScAddress := utils.DoDeploySecond(t, testContextFirstContract, pathToContract, firstAccount, gasPrice, deployGasLimit, nil, big.NewInt(50))
+
+	args := [][]byte{[]byte(hex.EncodeToString(firstScAddress))}
+	secondAccount, _ := testContextSecondContract.Accounts.LoadAccount(secondContractOwner)
+	pathToContract = "../testdata/second/output/async.wasm"
+	secondSCAddress := utils.DoDeploySecond(t, testContextSecondContract, pathToContract, secondAccount, gasPrice, deployGasLimit, args, big.NewInt(50))
+
+	utils.CleanAccumulatedIntermediateTransactions(t, testContextFirstContract)
+	utils.CleanAccumulatedIntermediateTransactions(t, testContextSecondContract)
+
+	testContextFirstContract.TxFeeHandler.CreateBlockStarted(getZeroGasAndFees())
+	testContextSecondContract.TxFeeHandler.CreateBlockStarted(getZeroGasAndFees())
+
+	gasLimit := uint64(5000000)
+	tx := vm.CreateTransaction(0, big.NewInt(0), senderAddr, secondSCAddress, gasPrice, gasLimit, []byte("doSomething"))
+
+	// execute on the sender shard
+	retCode, err := testContextSender.TxProcessor.ProcessTransaction(tx)
+	require.Equal(t, vmcommon.Ok, retCode)
+	require.Nil(t, err)
+
+	require.Equal(t, big.NewInt(120), testContextSender.TxFeeHandler.GetAccumulatedFees())
+
+	utils.TestAccount(t, testContextSender.Accounts, senderAddr, 1, big.NewInt(950000000))
+
+	// execute on the destination shard
+	retCode, err = testContextSecondContract.TxProcessor.ProcessTransaction(tx)
+	require.Equal(t, vmcommon.Ok, retCode)
+	require.Nil(t, err)
+
+	require.Equal(t, big.NewInt(3830), testContextSecondContract.TxFeeHandler.GetAccumulatedFees())
+	require.Equal(t, big.NewInt(383), testContextSecondContract.TxFeeHandler.GetDeveloperFees())
+
+	intermediateTxs := testContextSecondContract.GetIntermediateTransactions(t)
+
+	// execute async call first contract shard
+	scr := intermediateTxs[0]
+	utils.ProcessSCRResult(t, testContextFirstContract, scr, vmcommon.Ok, nil)
+
+	res := vm.GetIntValueFromSC(nil, testContextFirstContract.Accounts, firstScAddress, "numCalled")
+	require.Equal(t, big.NewInt(1), res)
+
+	require.Equal(t, big.NewInt(5540), testContextFirstContract.TxFeeHandler.GetAccumulatedFees())
+	require.Equal(t, big.NewInt(554), testContextFirstContract.TxFeeHandler.GetDeveloperFees())
+
+	intermediateTxs = testContextFirstContract.GetIntermediateTransactions(t)
+	require.NotNil(t, intermediateTxs)
+
+	testContextSecondContract.TxFeeHandler.CreateBlockStarted(getZeroGasAndFees())
+	scr = intermediateTxs[0]
+	utils.ProcessSCRResult(t, testContextSecondContract, scr, vmcommon.Ok, nil)
+
+	require.Equal(t, big.NewInt(49990510), testContextSecondContract.TxFeeHandler.GetAccumulatedFees())
+	require.Equal(t, big.NewInt(4999051), testContextSecondContract.TxFeeHandler.GetDeveloperFees())
+
+	intermediateTxs = testContextSecondContract.GetIntermediateTransactions(t)
+	require.NotNil(t, intermediateTxs)
+}
+
+func TestAsyncCallDisabled(t *testing.T) {
+	if testing.Short() {
+		t.Skip("this is not a short test")
+	}
+
+	enableEpochs := config.EnableEpochs{
+		OptimizeGasUsedInCrossMiniBlocksEnableEpoch: integrationTests.UnreachableEpoch,
+		ScheduledMiniBlocksEnableEpoch:              integrationTests.UnreachableEpoch,
+		MiniBlockPartialExecutionEnableEpoch:        integrationTests.UnreachableEpoch,
+		SCProcessorV2EnableEpoch:                    integrationTests.UnreachableEpoch,
+	}
+
+	roundsConfig := testscommon.GetDefaultRoundsConfig()
+	activationRound := roundsConfig.RoundActivations["DisableAsyncCallV1"]
+	activationRound.Round = "0"
+	roundsConfig.RoundActivations["DisableAsyncCallV1"] = activationRound
+
+	testContextFirstContract, err := vm.CreatePreparedTxProcessorWithVMsMultiShardAndRoundConfig(0, enableEpochs, roundsConfig)
+	require.Nil(t, err)
+	defer testContextFirstContract.Close()
+
+	testContextSecondContract, err := vm.CreatePreparedTxProcessorWithVMsMultiShardAndRoundConfig(1, enableEpochs, roundsConfig)
+	require.Nil(t, err)
+	defer testContextSecondContract.Close()
+
+	testContextSender, err := vm.CreatePreparedTxProcessorWithVMsMultiShardAndRoundConfig(2, enableEpochs, roundsConfig)
+	require.Nil(t, err)
+	defer testContextSender.Close()
+
+	firstContractOwner := []byte("12345678901234567890123456789010")
+	require.Equal(t, uint32(0), testContextSender.ShardCoordinator.ComputeId(firstContractOwner))
+
+	secondContractOwner := []byte("12345678901234567890123456789011")
+	require.Equal(t, uint32(1), testContextSender.ShardCoordinator.ComputeId(secondContractOwner))
+
+	senderAddr := []byte("12345678901234567890123456789032")
+	require.Equal(t, uint32(2), testContextSender.ShardCoordinator.ComputeId(senderAddr))
+
+	rewaBalance := big.NewInt(1000000000)
+
+	_, _ = vm.CreateAccount(testContextSender.Accounts, senderAddr, 0, rewaBalance)
+	_, _ = vm.CreateAccount(testContextFirstContract.Accounts, firstContractOwner, 0, rewaBalance)
+	_, _ = vm.CreateAccount(testContextSecondContract.Accounts, secondContractOwner, 0, rewaBalance)
+
+	gasPrice := uint64(10)
+	deployGasLimit := uint64(50000)
+	firstAccount, _ := testContextFirstContract.Accounts.LoadAccount(firstContractOwner)
+
+	pathToContract := "../testdata/first/output/first.wasm"
+	firstScAddress := utils.DoDeploySecond(t, testContextFirstContract, pathToContract, firstAccount, gasPrice, deployGasLimit, nil, big.NewInt(50))
+
+	args := [][]byte{[]byte(hex.EncodeToString(firstScAddress))}
+	secondAccount, _ := testContextSecondContract.Accounts.LoadAccount(secondContractOwner)
+	pathToContract = "../testdata/second/output/async.wasm"
+	secondSCAddress := utils.DoDeploySecond(t, testContextSecondContract, pathToContract, secondAccount, gasPrice, deployGasLimit, args, big.NewInt(50))
+
+	utils.CleanAccumulatedIntermediateTransactions(t, testContextFirstContract)
+	utils.CleanAccumulatedIntermediateTransactions(t, testContextSecondContract)
+
+	testContextFirstContract.TxFeeHandler.CreateBlockStarted(getZeroGasAndFees())
+	testContextSecondContract.TxFeeHandler.CreateBlockStarted(getZeroGasAndFees())
+
+	gasLimit := uint64(5000000)
+	tx := vm.CreateTransaction(0, big.NewInt(0), senderAddr, secondSCAddress, gasPrice, gasLimit, []byte("doSomething"))
+
+	// execute on the sender shard
+	retCode, err := testContextSender.TxProcessor.ProcessTransaction(tx)
+	require.Equal(t, vmcommon.Ok, retCode)
+	require.Nil(t, err)
+
+	require.Equal(t, big.NewInt(120), testContextSender.TxFeeHandler.GetAccumulatedFees())
+
+	utils.TestAccount(t, testContextSender.Accounts, senderAddr, 1, big.NewInt(950000000))
+
+	// execute on the destination shard
+	retCode, err = testContextSecondContract.TxProcessor.ProcessTransaction(tx)
+	require.Equal(t, vmcommon.ExecutionFailed, retCode)
+	require.Nil(t, err)
+}

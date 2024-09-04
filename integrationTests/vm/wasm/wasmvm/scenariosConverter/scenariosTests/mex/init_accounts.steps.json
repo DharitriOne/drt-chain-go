@@ -1,0 +1,105 @@
+{
+	"name": "init accounts",
+	"steps": [
+		{
+			"step": "setState",
+			"accounts": {
+				"address:owner": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:WREWA-abcdef": "5,000,000,000",
+						"str:MEX-abcdef": "5,000,000,000",
+						"str:BLC-abcdef": "5,000,000,000"
+					},
+					"storage": {}
+				},
+				"address:user1": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:WREWA-abcdef": "5,000,000,000",
+						"str:MEX-abcdef": "5,000,000,000",
+						"str:BLC-abcdef": "5,000,000,000"
+					},
+					"storage": {}
+				},
+				"address:user2": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:WREWA-abcdef": "5,000,000,000",
+						"str:MEX-abcdef": "5,000,000,000",
+						"str:BLC-abcdef": "5,000,000,000"
+					},
+					"storage": {}
+				},
+				"address:user_with_lp": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:LPTOK-abcdef": "5,000,000,000"
+					},
+					"storage": {}
+				}
+			}
+		},
+		{
+			"step": "checkState",
+			"accounts": {
+				"address:owner": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:WREWA-abcdef": "5,000,000,000",
+						"str:MEX-abcdef": "5,000,000,000",
+						"str:BLC-abcdef": "5,000,000,000"
+					},
+					"storage": {
+						"``NUMBATdcdtWREWA-abcdef": "0x120600012a05f2001a020000220e120c57524557412d616263646566",
+						"``NUMBATdcdtMEX-abcdef": "0x120600012a05f2001a020000220c120a414c432d616263646566",
+						"``NUMBATdcdtBLC-abcdef": "0x120600012a05f2001a020000220c120a424c432d616263646566"
+					}
+				},
+				"address:user1": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:WREWA-abcdef": "5,000,000,000",
+						"str:MEX-abcdef": "5,000,000,000",
+						"str:BLC-abcdef": "5,000,000,000"
+					},
+					"storage": {
+						"``NUMBATdcdtWREWA-abcdef": "0x120600012a05f2001a020000220e120c57524557412d616263646566",
+						"``NUMBATdcdtMEX-abcdef": "0x120600012a05f2001a020000220c120a414c432d616263646566",
+						"``NUMBATdcdtBLC-abcdef": "0x120600012a05f2001a020000220c120a424c432d616263646566"
+					}
+				},
+				"address:user2": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:WREWA-abcdef": "5,000,000,000",
+						"str:MEX-abcdef": "5,000,000,000",
+						"str:BLC-abcdef": "5,000,000,000"
+					},
+					"storage": {
+						"``NUMBATdcdtWREWA-abcdef": "0x120600012a05f2001a020000220e120c57524557412d616263646566",
+						"``NUMBATdcdtMEX-abcdef": "0x120600012a05f2001a020000220c120a414c432d616263646566",
+						"``NUMBATdcdtBLC-abcdef": "0x120600012a05f2001a020000220c120a424c432d616263646566"
+					}
+				},
+				"address:user_with_lp": {
+					"nonce": "0",
+					"balance": "1,000,000,000,000,000,000,000,000,000,000",
+					"dcdt": {
+						"str:LPTOK-abcdef": "5,000,000,000"
+					},
+					"storage": {
+						"``NUMBATdcdtLPTOK-abcdef": "0x120600012a05f2001a020000220e120c4c50544f6b2d616263646566"
+					}
+				}
+			}
+		}
+	]
+}

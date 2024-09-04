@@ -1,0 +1,92 @@
+[
+  {
+    "address": "moa1ulhw20j7jvgfgak5p05kv667k5k9f320sgef5ayxkt9784ql0zssw6zcw3",
+    "supply": "2222222222222222222222224",
+    "balance": "2219722222222222222222224",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa17c4fs6mz2aa2hcvva2jfxdsrdknu4220496jmswer9njznt22edszmqsl9",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa10d2gufxesrp8g409tzxljlaefhs0rsgjle3l7nq38de59txxt8cslvnh3p",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa1e0vueugj66l5cgrz83se0a74c3hst7u4w55t3usfa3at8yhfq94qx95xkg",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa1fn9faxsh6felld6c2vd82par6nzshkj609550qu3dngh8faxjz5sfysays",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa12ymx62jlp0dez40slu22dxmese5fl0rwrtqzlnff844rtltnlpds5alhvt",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa1qsrfugd567kv68sysp455cshqr30257c8jnuq2q7zct943w82fes0mpud6",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa153a3wkfng4cupvkd86k07nl0acq548s72xr3yvpjut6u6fnpzadsg6z0dw",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  },
+  {
+    "address": "moa1yajssshtsc75x87cxvylnwu4r9dv3c2tegufrd07fjmw72krlq9svrg7ka",
+    "supply": "2222222222222222222222222",
+    "balance": "2219722222222222222222222",
+    "stakingvalue": "0",
+    "delegation": {
+      "address": "moa1qqqqqqqqqqqqqpgqrchxzx5uu8sv3ceg8nx8cxc0gesezure5awq7du8ha",
+      "value": "2500000000000000000000"
+    }
+  }
+]

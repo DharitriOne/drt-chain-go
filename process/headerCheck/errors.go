@@ -1,0 +1,25 @@
+package headerCheck
+
+import "errors"
+
+// ErrNotEnoughSignatures signals that a block is not signed by at least the minimum number of validators from
+// the consensus group
+var ErrNotEnoughSignatures = errors.New("not enough signatures in block")
+
+// ErrWrongSizeBitmap signals that the provided bitmap's length is bigger than the one that was required
+var ErrWrongSizeBitmap = errors.New("wrong size bitmap has been provided")
+
+// ErrInvalidReferenceChainID signals that the provided reference chain ID is not valid
+var ErrInvalidReferenceChainID = errors.New("invalid reference Chain ID provided")
+
+// ErrInvalidChainID signals that an invalid chain ID has been provided
+var ErrInvalidChainID = errors.New("invalid chain ID")
+
+// ErrNilHeaderVersionHandler signals that the provided header version handler is nil
+var ErrNilHeaderVersionHandler = errors.New("nil header version handler")
+
+// ErrIndexOutOfBounds signals that the given index is outside expected bounds
+var ErrIndexOutOfBounds = errors.New("index is out of bounds")
+
+// ErrIndexNotSelected signals that the given index is not selected
+var ErrIndexNotSelected = errors.New("index is not selected")
